@@ -1,0 +1,28 @@
+name: mi_app_verificadora
+description: "Sistema de verificación de identidad con OCR para INE y CURP."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # --- Librerías del Proyecto ---
+  google_mlkit_text_recognition: ^0.13.0 # Para leer el texto de tu INE
+  image_picker: ^1.0.7                  # Para que tomes la foto en tu celular
+  intl: ^0.19.0                         # Para validar la fecha del 08 de marzo de 2026
+  local_auth: ^2.3.0
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  # Si planeas añadir assets más adelante, los pondremos aquí.
