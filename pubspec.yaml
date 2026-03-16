@@ -1,22 +1,34 @@
 name: mi_app_verificadora
-description: "Sistema de verificación de identidad con OCR para INE y CURP."
+description: App de verificación de identidad con biometría y OCR.
 publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.10.4
+  sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
 
-  # --- Librerías del Proyecto ---
-  google_mlkit_text_recognition: ^0.13.0 # Para leer el texto de tu INE
-  image_picker: ^1.0.7                  # Para que tomes la foto en tu celular
-  intl: ^0.19.0                         # Para validar la fecha del 08 de marzo de 2026
+  # ── State management / DI ───────────────────────────────────────
+  flutter_riverpod: ^2.5.1
+
+  # ── Biometría ───────────────────────────────────────────────────
   local_auth: ^2.3.0
 
+  # ── OCR ─────────────────────────────────────────────────────────
+  google_mlkit_text_recognition: ^0.13.0
+
+  # ── Media ───────────────────────────────────────────────────────
+  image_picker: ^1.0.7
+  file_picker: ^8.0.0
+
+  # ── PDF ─────────────────────────────────────────────────────────
+  pdfx: ^2.6.0
+
+  # ── Utils ───────────────────────────────────────────────────────
+  intl: ^0.19.0
 
 dev_dependencies:
   flutter_test:
@@ -25,4 +37,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  # Si planeas añadir assets más adelante, los pondremos aquí.

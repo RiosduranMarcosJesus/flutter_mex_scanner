@@ -1,23 +1,32 @@
-// Archivo: lib/main.dart
 import 'package:flutter/material.dart';
-import 'package:mi_app_verificadora/src/features/identity_verification/presentation/screens/verification_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'src/features/identity/presentation/identity_page.dart';
 
 void main() {
-  runApp(const MiAppVerificadora());
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(
+    // ProviderScope es el único requisito de Riverpod a nivel de app.
+    // No hay injection_container.init() ni ningún setup manual.
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
 
-class MiAppVerificadora extends StatelessWidget {
-  const MiAppVerificadora({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Verificador de Identidad',
+      title: 'Verificadora de Identidad',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         useMaterial3: true,
       ),
-      home: const VerificationScreen(),
+      home: const IdentityPage(),
     );
   }
 }
