@@ -5,13 +5,7 @@ import 'src/features/identity/presentation/identity_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(
-    // ProviderScope es el único requisito de Riverpod a nivel de app.
-    // No hay injection_container.init() ni ningún setup manual.
-    const ProviderScope(
-      child: MyApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {

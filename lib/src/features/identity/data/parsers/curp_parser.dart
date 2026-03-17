@@ -20,9 +20,6 @@ class CurpParser implements DocumentParserStrategy {
     required String ocrText,
     required String filePath,
   }) async {
-    // DEBUG temporal — quitar antes de producción
-    // print('=== OCR CURP ===\n$ocrText\n================');
-
     final lines = ocrText
         .split('\n')
         .map((l) => l.trim())

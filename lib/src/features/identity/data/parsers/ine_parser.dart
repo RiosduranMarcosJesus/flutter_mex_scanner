@@ -31,7 +31,7 @@ class IneParser implements DocumentParserStrategy {
       idNumber:        _extractCurp(ocrText) ?? _extractClaveElector(ocrText),
       sex:             _extractSex(ocrText),
       address:         _extractAddress(lines),
-      state:           _extractState(ocrText),
+      state:           _extractState(lines),
     );
   }
 
@@ -199,11 +199,77 @@ class IneParser implements DocumentParserStrategy {
   }
 
   // ── Estado ────────────────────────────────────────────────────────
+  //
+  // En la INE el estado aparece como ÚLTIMA palabra del domicilio:
+  //   "XICOTEPEC, PUE." — ciudad + abreviatura de estado
+  // El problema anterior: buscaba en todo el texto y encontraba
+  // "ZARAGOZA SIN" (calle Ignacio Zaragoza + abrev. Sinaloa) — falso positivo.
+  // Solución: buscamos la abreviatura solo como token FINAL de línea.
 
-  String? _extractState(String text) {
-    final match = RegExp(
-      r'\b([A-ZÁÉÍÓÚÜÑ]+),?\s*(PUE|JAL|CDMX|VER|OAX|CHIS|GRO|HGO|MEX|DF|NL|SLP|TAM|YUC|ZAC|AGS|BC|BCS|CAM|COA|COL|DGO|GTO|MOR|NAY|QRO|QROO|SIN|SON|TAB|TLAX)\b',
-    ).firstMatch(text.toUpperCase());
-    return match?.group(0);
+  String? _extractState(List<String> lines) {
+    const abbrevs = {
+      'PUE': 'PUEBLA', 'JAL': 'JALISCO', 'CDMX': 'CIUDAD DE MEXICO',
+      'VER': 'VERACRUZ', 'OAX': 'OAXACA', 'CHIS': 'CHIAPAS',
+      'GRO': 'GUERRERO', 'HGO': 'HIDALGO', 'MEX': 'ESTADO DE MEXICO',
+      'NL': 'NUEVO LEON', 'SLP': 'SAN LUIS POTOSI', 'TAM': 'TAMAULIPAS',
+      'YUC': 'YUCATAN', 'ZAC': 'ZACATECAS', 'AGS': 'AGUASCALIENTES',
+      'BC': 'BAJA CALIFORNIA', 'BCS': 'BAJA CALIFORNIA SUR',
+      'CAM': 'CAMPECHE', 'COA': 'COAHUILA', 'COL': 'COLIMA',
+      'DGO': 'DURANGO', 'GTO': 'GUANAJUATO', 'MOR': 'MORELOS',
+      'NAY': 'NAYARIT', 'QRO': 'QUERETARO', 'QROO': 'QUINTANA ROO',
+      'SIN': 'SINALOA', 'SON': 'SONORA', 'TAB': 'TABASCO', 'TLAX': 'TLAXCALA',
+      'DF': 'CIUDAD DE MEXICO',
+    };
+
+    final pattern = RegExp(
+      r'\b([A-ZÁÉÍÓÚÜÑ]+)[,\s]+(' + abbrevs.keys.join('|') + r')\.?\s*$',
+    );
+
+    // Búsqueda 1: solo dentro del bloque DOMICILIO
+    bool inDom = false;
+    for (final line in lines) {
+      final up = line.toUpperCase().trim();
+      if (up.contains('DOMICILIO')) { inDom = true; continue; }
+      if (!inDom) continue;
+      if (_isKnownLabel(line) && !up.contains('DOMICILIO')) break;
+
+      final m = pattern.firstMatch(up);
+      if (m != null) {
+        return '${m.group(1)}, ${abbrevs[m.group(2)] ?? m.group(2)}';
+      }
+    }
+
+    // Búsqueda 2: fallback en cualquier línea pero evitando nombres de calles
+    for (final line in lines) {
+      final up = line.toUpperCase().trim();
+      if (up.startsWith('C ') || up.startsWith('AV ') ||
+          up.startsWith('BLVD') || up.contains(' SN') ||
+          up.contains(' S/N') || up.contains('CALLE')) continue;
+      final m = pattern.firstMatch(up);
+      if (m != null) {
+        return '${m.group(1)}, ${abbrevs[m.group(2)] ?? m.group(2)}';
+      }
+    }
+    return null;
+  }
+}
+
+/// Extensión del parser para extraer apellido materno desde la CURP
+/// cuando el OCR no lo encontró en las líneas de texto.
+///
+/// La CURP codifica: posición 0 = inicial apellido paterno,
+/// posición 1 = vocal interna apellido paterno,
+/// posición 2 = inicial apellido materno,   ← esto usamos
+/// posición 3 = inicial nombre.
+/// No podemos reconstruir el apellido completo, pero sí la inicial,
+/// que sirve para validación cruzada.
+extension IneParserCurpFallback on IneParser {
+  String? extractSecondLastNameInitialFromCurp(String ocrText) {
+    final curp = RegExp(
+      r'\b[A-Z]{4}\d{6}[HM][A-Z]{2}[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9]\d\b',
+    ).firstMatch(ocrText.toUpperCase())?.group(0);
+    if (curp == null || curp.length < 3) return null;
+    // pos 2 = inicial del apellido materno
+    return '${curp[2]}...';
   }
 }

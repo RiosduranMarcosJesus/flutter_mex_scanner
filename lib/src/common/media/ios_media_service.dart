@@ -1,14 +1,19 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
-import 'camera_crop_page.dart';
 import 'media_service.dart';
 
 class IosMediaService implements MediaService {
   final _picker = ImagePicker();
 
   @override
-  Future<File?> takePhoto() => CameraCropPage.capture();
+  Future<File?> takePhoto() async {
+    final xFile = await _picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 95,
+    );
+    return xFile == null ? null : File(xFile.path);
+  }
 
   @override
   Future<File?> pickFile({bool allowPdf = false}) async {
@@ -20,7 +25,10 @@ class IosMediaService implements MediaService {
       final path = result?.files.single.path;
       return path != null ? File(path) : null;
     }
-    final xFile = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+    final xFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
     return xFile == null ? null : File(xFile.path);
   }
 }

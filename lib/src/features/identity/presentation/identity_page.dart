@@ -19,10 +19,7 @@ class IdentityPage extends ConsumerWidget {
         centerTitle: true,
         actions: [
           if (state.status != IdentityStatus.idle)
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: notifier.reset,
-            ),
+            IconButton(icon: const Icon(Icons.refresh), onPressed: notifier.reset),
         ],
       ),
       body: SafeArea(
@@ -79,10 +76,7 @@ class _IdleView extends StatelessWidget {
           Row(children: [
             Expanded(
               child: FilledButton.icon(
-                // Cámara con overlay guía — pasa context para el Navigator
-                onPressed: () => notifier.verify(
-                  DocType.ine, useCamera: true,
-                ),
+                onPressed: () => notifier.verify(DocType.ine, useCamera: true),
                 icon: const Icon(Icons.camera_alt_outlined),
                 label: const Text('Tomar foto'),
               ),
@@ -90,9 +84,7 @@ class _IdleView extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: FilledButton.tonal(
-                onPressed: () => notifier.verify(
-                  DocType.ine, useCamera: false,
-                ),
+                onPressed: () => notifier.verify(DocType.ine, useCamera: false),
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -104,6 +96,15 @@ class _IdleView extends StatelessWidget {
               ),
             ),
           ]),
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              'Tip: encuadra solo la INE, buena luz y sin sombras.',
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(color: Colors.black45),
+              textAlign: TextAlign.center,
+            ),
+          ),
 
           const SizedBox(height: 16),
 
@@ -141,9 +142,7 @@ class _IdleView extends StatelessWidget {
           Row(children: [
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: () => notifier.verify(
-                  DocType.curp, isReference: true,
-                ),
+                onPressed: () => notifier.verify(DocType.curp, isReference: true),
                 icon: const Icon(Icons.article_outlined, size: 18),
                 label: const Text('CURP referencia'),
               ),
@@ -151,10 +150,7 @@ class _IdleView extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: () => notifier.verify(
-                  DocType.ine,
-                  isReference: true, useCamera: true,
-                ),
+                onPressed: () => notifier.verify(DocType.ine, isReference: true, useCamera: true),
                 icon: const Icon(Icons.badge_outlined, size: 18),
                 label: const Text('INE referencia'),
               ),
@@ -162,10 +158,7 @@ class _IdleView extends StatelessWidget {
           ]),
           const SizedBox(height: 10),
           TextButton.icon(
-            onPressed: () => notifier.verify(
-              DocType.ine,
-              useCamera: true, skipCrossValidation: true,
-            ),
+            onPressed: () => notifier.verify(DocType.ine, useCamera: true, skipCrossValidation: true),
             icon: const Icon(Icons.person_add_outlined, size: 18),
             label: const Text('Registrar otra persona'),
           ),
