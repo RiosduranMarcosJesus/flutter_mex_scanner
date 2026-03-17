@@ -1,39 +1,26 @@
 import 'dart:io';
-
+import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
-
+import 'camera_crop_page.dart';
 import 'media_service.dart';
 
-/// Implementación Android de [MediaService].
-///
-/// Los permisos de cámara ya están declarados en AndroidManifest.xml.
-/// `image_picker` en Android usa Intent para cámara y MediaStore para galería,
-/// no necesita permisos en runtime en Android 13+ para imágenes propias.
 class AndroidMediaService implements MediaService {
   final _picker = ImagePicker();
 
   @override
-  Future<File?> takePhoto() async {
-    final xFile = await _picker.pickImage(
-      source: ImageSource.camera,
-      imageQuality: 90,
-      preferredCameraDevice: CameraDevice.rear,
-    );
-    return xFile == null ? null : File(xFile.path);
-  }
+  Future<File?> takePhoto() => CameraCropPage.capture(); // usa navigatorKey global
 
   @override
   Future<File?> pickFile({bool allowPdf = false}) async {
     if (allowPdf) {
-      // image_picker no soporta PDF. Alternativa futura: file_picker.
-      // Por ahora retornamos null y la UI muestra mensaje al usuario.
-      // TODO: integrar file_picker para PDF en Android.
-      return null;
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+      );
+      final path = result?.files.single.path;
+      return path != null ? File(path) : null;
     }
-    final xFile = await _picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 90,
-    );
+    final xFile = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 90);
     return xFile == null ? null : File(xFile.path);
   }
 }
